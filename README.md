@@ -1,17 +1,17 @@
-# Migrating from cassandra cluster to another
+# Migrating from one Cassandra cluster to another
 
 [Apache Cassandra](https://cassandra.apache.org/) is a free and open-source distributed NoSQL database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure.
 
-There is some documentation out their about how to migrate from one cluster to anoter :
+There is some documentation out their about how to migrate from one cluster to another:
 
 
 * [Restoring a snapshot into a new cluster](http://docs.datastax.com/en/cassandra/2.1/cassandra/operations/ops_snapshot_restore_new_cluster.html)
 
 
-Here is some script to help you do that quite easily, method doesn't care if you're restoring on the cluster or to another cluster, with same or different topology :
+Here are some scripts to help you do that quite easily. These scrips work if you're restoring on the same cluster or to another cluster, or even to a cluster with same or different topology:
 
 
-Create an export
+Create export
 -------------
 
 * Export of keyspace schema structure with  [`DESC keyspace`](http://docs.datastax.com/en/cql/3.1/cql/cql_reference/describe_r.html)
@@ -19,30 +19,29 @@ Create an export
 * Create a tar file with all the data
 * [Remove the snapshot](http://docs.datastax.com/en/cassandra/2.1/cassandra/tools/toolsClearSnapShot.html)
 
-The export script `export.sh` is doing all that, just run it like that on one of the Cassandra cluster node :
+The export script `export.sh` does all of those steps. Run the following command to export the data:
 
 ```bash
-$ ./export.sh <keyspace name>
+$ ./export.sh -k <keyspace name> [-h <host>]
 
 ``` 
 
-You can have a list of your keyspace with `desccribe keyspaces`
+You can get a list of your keyspace with `describe keyspaces`
 
 Transfer the tar file to one of the node of the new cluster.
 
 Import data
 -------------
 
-Now you need to import data to do so, you have to :
-
+* "Copy" the old keyspace settings
 * Drop the old keyspace
-* Create the keyspace schema
-* Import date into table with [sstableloader](https://www.datastax.com/dev/blog/bulk-loading)
+* Create the keyspace schema using the old keyspace settings
+* Import data into table with [sstableloader](https://www.datastax.com/dev/blog/bulk-loading)
 
-That what the `import.sh` script is doing from the previous generated tar file.
+That what the `import.sh` script is doing from the previous generated tar file. Run the following command to import the data:
 
 ```bash
-$ ./import.sh <keypsace backup tar file>
+$ ./import.sh -f <keypsace backup tar file> [-h <host>]
 
 ```
 

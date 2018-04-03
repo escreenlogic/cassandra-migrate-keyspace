@@ -1,13 +1,30 @@
 #!/bin/bash
 
-keyspace=$1
-bkp_name="bkp-$$"
-data_dir="/var/lib/cassandra/data/"
+usage() { echo "Usage: $0 -k <keyspace> [-h <host>]" 1>&2; exit 1; }
+
+host=localhost
+
+while getopts ":k:h:" o; do
+    case "${o}" in
+        k)
+            keyspace=${OPTARG}
+            ;;
+        h)
+            host=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
 
 if [ -z "${keyspace}" ]; then
-    echo "Usage export.sh [keyspace]"
-    exit 1
+    usage
 fi
+
+bkp_name="bkp-$$"
+data_dir="/var/lib/cassandra/data"
 
 echo "Create snapshot named: ${bkp_name}"
 nodetool snapshot "${keyspace}" -t "${bkp_name}"
@@ -23,7 +40,7 @@ echo "Remove snapshot named: ${bkp_name}"
 nodetool clearsnapshot -t "${bkp_name}" "${keyspace}"
 
 echo "Dump keyspace and table creation instruction"
-cqlsh -e "desc \"${keyspace}\";" > "${bkp_name}/${keyspace}.sql"
+cqlsh "${host}" -e "desc \"${keyspace}\";" > "${bkp_name}/${keyspace}.sql"
 
 echo "Create tar file: ${keyspace}.tar.gz"
 cd "${bkp_name}"
