@@ -46,10 +46,10 @@ if [[ ! -d "${bkp_name}/${keyspace}" ]]; then
 fi
 
 echo "Drop keyspace ${keyspace}"
-cqlsh --request-timeout="60" -e "drop keyspace \"${keyspace}\";"
+cqlsh "${host}" --request-timeout="60" -e "drop keyspace \"${keyspace}\";"
 
 echo "Create empty keyspace: ${keyspace}"
-cat "${bkp_name}/${data_dir}.sql" | cqlsh
+cat "${bkp_name}/${data_dir}.sql" | cqlsh "${host}"
 
 for dir in "${bkp_name}/${keyspace}/"*; do
     sstableloader -d "${host}" "${dir}"
