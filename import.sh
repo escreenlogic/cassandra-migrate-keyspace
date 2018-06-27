@@ -40,12 +40,17 @@ sed -i "s/CREATE KEYSPACE .*/${keyspace_sql}/" "${bkp_name}/${data_dir}.sql"
 # make sure the keyspace name are correct
 sed -i "s/CREATE TABLE [A-Za-z]\{1,\}./CREATE TABLE ${keyspace}./" "${bkp_name}/${data_dir}.sql"
 
+# if we are changing keyspaces, rename the data directory
+if [[ ! -d "${bkp_name}/${keyspace}" ]]; then
+    mv "${bkp_name}/${data_dir}" "${bkp_name}/${keyspace}"
+fi
+
 echo "Drop keyspace ${keyspace}"
 cqlsh --request-timeout="60" -e "drop keyspace \"${keyspace}\";"
 
 echo "Create empty keyspace: ${keyspace}"
 cat "${bkp_name}/${data_dir}.sql" | cqlsh
 
-for dir in "${bkp_name}/${data_dir}/"*; do
+for dir in "${bkp_name}/${keyspace}/"*; do
     sstableloader -d "${host}" "${dir}"
 done
