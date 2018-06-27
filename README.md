@@ -22,7 +22,7 @@ Create export
 The export script `export.sh` does all of those steps. Run the following command to export the data:
 
 ```bash
-$ ./export.sh -k <keyspace name> [-h <host>]
+$ ./export.sh -k <keyspace> [-h <host>]
 
 ``` 
 
@@ -41,7 +41,7 @@ Import data
 That what the `import.sh` script is doing from the previous generated tar file. Run the following command to import the data:
 
 ```bash
-$ ./import.sh -f <keypsace backup tar file> [-h <host>]
+$ ./import.sh -f <tar_file> -k <keyspace> [-h <host>]
 
 ```
 
